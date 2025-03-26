@@ -1,4 +1,6 @@
 
+#pragma once
+
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
@@ -12,9 +14,9 @@
 #include "configs.h"
 #include "vis_util.h"
 // #include "time_util.h"
-
-// #include "opencv2/opencv.hpp"
-
+#if CV_VIEW
+#include "opencv2/opencv.hpp"
+#endif
 bool leftMousePressed = false;
 double lastMouseX = 0.0, lastMouseY = 0.0;
 float horizontalAngle = glm::radians(INIT_CAM_HANGLE * 360.0f / 100.0f), verticalAngle = glm::radians(INIT_CAM_VANGLE * 360.0f / 100.0f); // 카메라의 회전 각도
@@ -100,6 +102,10 @@ int main(int argc, char* argv[]) {
     Space space;
     Camera camera;
 
+#if PANORAMA_
+    PanoramaView PV(PANORAMA_WINDOW_HEIGHT, PANORAMA_WINDOW_WIDTH);
+#endif
+
     /**** Main loop ****/ 
     while (!glfwWindowShouldClose(window)) {
         
@@ -107,15 +113,13 @@ int main(int argc, char* argv[]) {
         // Clear screen
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // get lidar data
-        
         // draw scene
-         
         space.clearLines();
         space.clearBoxes();
         
         space.drawGrid(GRID_NUM, GRID_COEFFI, orbitRadius, GRID_Z_OFFSET);
 
+        // get lidar data & draw lidar data
         if(_lidar.wholeScan(source)){
             space.clearPoints();       
             if (video_control == 0){
@@ -123,7 +127,14 @@ int main(int argc, char* argv[]) {
                     space.lidarIntoSpace(_lidar.lidar_data, i);
                 }
             }
+#if PANORAMA_ && CV_VIEW
+            PV.makePanoramaView(_lidar.lidar_data[0], 0, ZOOM);
+            cv::imshow("Panorama View", PV.color_image);
+            cv::waitKey(1);
+        
+#endif
         }
+
 
         // Update camera position based on spherical coordinates
         float x = orbitRadius * glm::cos(verticalAngle) * glm::cos(horizontalAngle) + cameraPosition.x;

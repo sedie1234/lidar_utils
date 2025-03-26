@@ -25,8 +25,6 @@ set(CLIENT_SRC_FILES
 )
 add_executable(lidar_client_example ${CLIENT_SRC_FILES})
 target_link_libraries(lidar_client_example
-    jsoncpp
-    # OusterSDK::OusterSDK
     OusterSDK::ouster_client
     Eigen3::Eigen
     ${PCAP_LIBRARIES}
@@ -35,6 +33,8 @@ target_link_libraries(lidar_client_example
 target_include_directories(lidar_client_example PUBLIC
     ${LIDAR_UTIL_DIR}
 )
+
+
 
 
 if(BUILD_VIS)

@@ -8,6 +8,10 @@
 #include <tuple>
 
 #include "lidar_util.h"
+#if CV_VIEW
+#include "opencv2/opencv.hpp"
+#endif
+
 
 typedef struct _line{
     glm::vec3 start;
@@ -57,11 +61,34 @@ public:
     //time series points
     std::vector<std::pair<int, std::vector<Point>>> ts_points; 
     std::vector<Point> points; //point, color
-    //start point, end point, R, G, B
-    // std::vector<std::tuple<glm::vec3, glm::vec3, GLfloat, GLfloat, GLfloat>> lines; 
     std::vector<Line> lines;
     std::vector<Box> boxes;
 };
 
+class PanoramaView {
+public:
+    PanoramaView(){
 
+    };
+    PanoramaView(int h, int w){
+#if CV_VIEW //init
+        initImg(h, w);
+        this->h = h;
+        this->w = w;
+#endif
+    }
+
+#if CV_VIEW
+
+    ~PanoramaView(){    
+        cv::destroyAllWindows();
+    }
+
+    void initImg(int h, int w);
+    void makePanoramaView(std::vector<LidarData> lidar_data, int color, float zoom);
+    cv::Mat color_image;
+    int h;
+    int w;
+#endif
+};
 #endif  // VIS_UTIL_H

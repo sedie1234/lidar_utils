@@ -1,10 +1,11 @@
-#pragma once
-
-#include <cmath>  // for sin, cos, M_PI
 #include <iostream>
-#include <tuple>
+#include <cmath>  // for sin, cos, M_PI
+
+#include "opencv2/opencv.hpp"
 
 #include "vis_util.h"
+
+
 
 void Space::addPoint(const glm::vec3& point) {
     Point _point;
@@ -161,3 +162,36 @@ void Space::lidarIntoSpace(std::vector<std::vector<LidarData>> lidar_data, int l
         addPoint(point, color);
     }
 }
+
+#if CV_VIEW
+
+void PanoramaView::initImg(int h, int w){
+    color_image = cv::Mat::zeros(h, w, CV_8UC3);
+}
+
+void PanoramaView::makePanoramaView(std::vector<LidarData> lidar_data, int color, float zoom){
+    if(color == 0){// gray scale
+        color_image = cv::Scalar(0,0,0);
+
+        for(auto data : lidar_data){
+            float x = -data.x;
+            float y = -data.y;
+            float z = data.z;
+            
+            float longitude = atan2(y, x); // -π ~ π
+            float latitude = zoom * asin(z / sqrt(x*x + y*y + z*z)); // -π/2 ~ π/2
+
+            int px = (int)((longitude + M_PI) / (2 * M_PI) * w);
+            int py = (int)((latitude + M_PI / 2) / M_PI * h);
+
+            if(px >= 0 && py >=0 && px < w && py  < h){
+                color_image.at<cv::Vec3b>(h - py, w - px) 
+                = cv::Vec3b(data.reflectivity*255.0, 
+                            data.reflectivity*255.0, 
+                            data.reflectivity*255.0);
+            }
+        }
+    }
+}
+
+#endif
