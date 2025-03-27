@@ -111,7 +111,7 @@ bool LidarUtil::wholeScan(ouster::sensor::SensorScanSource& source){
     return true;
 }
 
-bool LidarUtil::isFieldAvailable(ouster::LidarScan& scan, const char* _field){
+bool LidarUtil::isFieldAvailable(ouster::LidarScan& scan, ouster::sensor::cf_type _field){
             
     try{
         scan.field<uint32_t>(_field);

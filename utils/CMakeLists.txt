@@ -19,6 +19,7 @@ include_directories(${EIGEN3_INCLUDE_DIR})
 add_library(lidar_util STATIC
     lidar_util.cpp
     vis_util.cpp
+    cluster.cpp
 )
 
 target_link_libraries(lidar_util

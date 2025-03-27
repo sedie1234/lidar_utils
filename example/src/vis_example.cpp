@@ -131,7 +131,6 @@ int main(int argc, char* argv[]) {
             PV.makePanoramaView(_lidar.lidar_data[0], 0, ZOOM);
             cv::imshow("Panorama View", PV.color_image);
             cv::waitKey(1);
-        
 #endif
         }
 

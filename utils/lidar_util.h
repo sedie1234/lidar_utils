@@ -16,6 +16,7 @@ typedef struct lidar_data_pack{
     float y;
     float z;
     uint32_t reflectivity;
+    int cluster_id;
     //TODO : lidar data - signal,,,,
 }LidarData;
 
@@ -52,7 +53,7 @@ public:
 
     void lidarDataClear(int index);
 
-    bool isFieldAvailable(ouster::LidarScan& scan, const char* _field);
+    bool isFieldAvailable(ouster::LidarScan& scan, ouster::sensor::cf_type _field);
 
 // private:
     std::vector<ouster::sensor::Sensor> sensors;
