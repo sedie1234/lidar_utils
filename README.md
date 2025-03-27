@@ -52,6 +52,7 @@ $ make
 -DCV_VIEW : 1이면 opencv사용, 0이면 opencv 사용 안함
 -DPANORAMA : 1이면 panorama view 생성, 0이면 생성 안함
 -DBUILD_VIS : ON이면 visualizer example 생성, OFF면 생성 안함
+-DCLUSTERING : 0이면 reflectivity, 1이면 clustering 알고리즘 1, 2면 clustering 알고리즘 2가 적용됨
 
 ## execute
 ```

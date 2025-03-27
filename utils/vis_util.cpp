@@ -154,16 +154,7 @@ void Space::render() const{
 }
 
 void Space::lidarIntoSpace(std::vector<std::vector<LidarData>> lidar_data, int lidar_index){
-#if 0   
-    for(int i=0; i<lidar_data[lidar_index].size(); i++){
-        glm::vec3 point(lidar_data[lidar_index][i].x, lidar_data[lidar_index][i].y, lidar_data[lidar_index][i].z);
-        // glm::vec3 color(lidar_data[lidar_index][i].reflectivity, 0.0f, 0.0f);
-        float color_sense = lidar_data[lidar_index][i].reflectivity / 26.54f;
-        glm::vec3 color(0.0f, 0.973f - color_sense, 0.364f + color_sense);
-        addPoint(point, color);
-    }
-#else
-    DBScan dbs(lidar_data[0], 1.4f, 70);
+#if CLUSTERING   
     std::vector<glm::vec3> colors;
     colors.push_back(glm::vec3(1.0f, 0.0f,  0.0f));
     colors.push_back(glm::vec3(0.5f, 0.0f,  0.0f));
@@ -183,7 +174,14 @@ void Space::lidarIntoSpace(std::vector<std::vector<LidarData>> lidar_data, int l
     colors.push_back(glm::vec3(0.0f, 0.5f,  1.0f));
     colors.push_back(glm::vec3(0.0f, 1.0f,  0.5f));
     colors.push_back(glm::vec3(0.0f, 0.5f,  0.5f));
+
+#if CLUSTERING == 1
+    DBScan dbs(lidar_data[0], 1.4f, 70);
     dbs.run();
+#elif CLUSTERING == 2
+    DBScan dbs(lidar_data[0], 1.4f, 70);
+    dbs.run2();
+#endif
 
     for(int i=0; i<dbs.lidar_data.size(); i++){
         glm::vec3 point(dbs.lidar_data[i].x, dbs.lidar_data[i].y, dbs.lidar_data[i].z);
@@ -192,6 +190,15 @@ void Space::lidarIntoSpace(std::vector<std::vector<LidarData>> lidar_data, int l
         int color_sense = dbs.lidar_data[i].cluster_id % colors.size();
         
         addPoint(point, colors[color_sense]);
+    }
+
+#else
+    for(int i=0; i<lidar_data[lidar_index].size(); i++){
+        glm::vec3 point(lidar_data[lidar_index][i].x, lidar_data[lidar_index][i].y, lidar_data[lidar_index][i].z);
+        // glm::vec3 color(lidar_data[lidar_index][i].reflectivity, 0.0f, 0.0f);
+        float color_sense = lidar_data[lidar_index][i].reflectivity / 26.54f;
+        glm::vec3 color(0.0f, 0.973f - color_sense, 0.364f + color_sense);
+        addPoint(point, color);
     }
 #endif
 }

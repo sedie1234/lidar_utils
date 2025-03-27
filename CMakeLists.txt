@@ -16,6 +16,12 @@ else()
 add_definitions(-DCV_VIEW=0)
 endif()
 
+if(CLUSTERING)
+add_definitions(-DCLUSTERING=1)
+else()	
+add_definitions(-DCLUSTERING=0)
+endif()
+
 add_subdirectory(utils)
 add_subdirectory(example)
 add_definitions(-UStatus -UMode)
