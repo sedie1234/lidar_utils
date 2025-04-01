@@ -40,6 +40,8 @@ $ cmake ..
 $ make
 $ sudo make install
 ```
+ - libtorch
+pytorch 홈페이지에서 다운, third_party/ 디렉토리 생성 후, libtorch 디렉토리를 third_party로 이동시킴
 
 ## build
 ```
