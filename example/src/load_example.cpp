@@ -75,14 +75,9 @@ int main(int argc, char* argv[]) {
         int offset = 0;
         int lidar_index =0;
         while(std::getline(ss, cell, ',')){
-            // std::cout << offset << ", " << cell << std::endl;
-            
             if(offset == 0){
                 lidar_index = std::stoi(cell);
                 offset++;
-                // if(lidar_index != index){
-                //     index =  lidar_index;
-                // }
             }else if(offset == 1){
                 _data.x = std::stof(cell);
                 offset++;

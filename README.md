@@ -61,5 +61,7 @@ $ make
 $ cd build/example/
 $ ./lidar_client_example [lidar addr]
 $ ./lidar_vis_example [lidar addr]
+$ ./lidar_record_example [csv filename] [lidar addr]
+$ ./lidar_load_example [csv filename]
 ```
 
