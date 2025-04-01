@@ -125,3 +125,38 @@ void LidarUtil::lidarDataClear(int index){
     lidar_data[index].clear();
     std::vector <LidarData>().swap(lidar_data[index]);
 }
+
+void LidarUtil::recordAll(std::string filename, int mode){
+
+    if(mode == 0){
+        std::ofstream file(filename);
+        file << "frame_id,x,y,z,reflectivity\n";
+        for(int i=0; i<lidar_data.size(); i++){
+            for(auto data : lidar_data[i]){
+                file << i << "," << data.x << "," 
+                << data.y << "," << data.z << "," 
+                << data.reflectivity <<"\n";
+            }
+        }
+        file.close();
+    }else if(mode == 1){
+        std::ofstream file(filename, std::ios::app);
+        for(int i=0; i<lidar_data.size(); i++){
+            for(auto data : lidar_data[i]){
+                file << i << "," << data.x << "," 
+                << data.y << "," << data.z << "," 
+                << data.reflectivity <<"\n";
+            }
+        }
+        file.close();
+    }
+    
+}
+
+void LidarUtil::recordFrame(std::ofstream& file, int frame_index, std::vector<LidarData> ldata){
+
+    for(auto data : ldata){
+        file << frame_index << "," << data.x << "," << data.y << "," 
+            << data.z << "," << data.reflectivity << "\n";
+    }
+}

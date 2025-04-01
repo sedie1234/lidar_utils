@@ -20,6 +20,7 @@ link_directories(/usr/lib/x86_64-linux-gnu)
 find_package(Eigen3 REQUIRED)
 include_directories(${EIGEN3_INCLUDE_DIR})
 
+# just client example
 set(CLIENT_SRC_FILES
     src/example.cpp
 )
@@ -34,9 +35,7 @@ target_include_directories(lidar_client_example PUBLIC
     ${LIDAR_UTIL_DIR}
 )
 
-
-
-
+# visualize example
 if(BUILD_VIS)
 
 set(VIS_SRC_FILES
@@ -61,3 +60,33 @@ target_include_directories(lidar_vis_example PUBLIC
 )
 
 endif()
+
+# record example
+set(RECORD_SRC_FILES
+    src/record_example.cpp)
+add_executable(lidar_record_example ${RECORD_SRC_FILES})
+target_link_libraries(lidar_record_example
+    OusterSDK::ouster_client
+    lidar_util
+)
+target_include_directories(lidar_record_example PUBLIC
+    ${LIDAR_UTIL_DIR}
+)
+
+#load csv example
+set(LOAD_SRC_FILES
+    src/load_example.cpp
+    src/camera.cpp)
+add_executable(lidar_load_example ${LOAD_SRC_FILES})
+target_link_libraries(lidar_load_example
+    OpenGL::GL
+    OpenGL::GLU
+    GLUT::GLUT
+    GLEW::GLEW
+    glfw
+    OusterSDK::ouster_client
+    lidar_util
+)
+target_include_directories(lidar_load_example PUBLIC
+    ${LIDAR_UTIL_DIR}
+)

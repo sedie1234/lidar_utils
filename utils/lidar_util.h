@@ -52,8 +52,9 @@ public:
     // void monoScan(ouster::sensor::SensorScanSource* source, int lidar_index);
 
     void lidarDataClear(int index);
-
     bool isFieldAvailable(ouster::LidarScan& scan, ouster::sensor::cf_type _field);
+    void recordAll(std::string filename, int mode); // mode 0 : 덮어쓰기, mode 1 : 이어쓰기
+    void recordFrame(std::ofstream& file, int frame_index, std::vector<LidarData> ldata);
 
 // private:
     std::vector<ouster::sensor::Sensor> sensors;

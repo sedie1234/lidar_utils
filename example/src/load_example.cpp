@@ -14,10 +14,6 @@
 #include "configs.h"
 #include "vis_util.h"
 
-#if INFER
-#include "infer_util.h"
-#endif
-
 #if CV_VIEW
 #include "opencv2/opencv.hpp"
 #endif
@@ -28,6 +24,7 @@ float horizontalAngle = glm::radians(INIT_CAM_HANGLE * 360.0f / 100.0f), vertica
 float orbitRadius = INIT_CAM_RADIUS;                           // 궤도 반지름
 
 int video_control = 0;
+int frame_index = 0;
 
 // camera position offset
 glm::vec3 cameraPosition(0.0f, 0.0f, 0.0f);
@@ -45,31 +42,70 @@ void cursorPosCallback(GLFWwindow* window, double xpos, double ypos);
 void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 void setupViewport(const GLuint width, const GLuint height);
 
-
 int main(int argc, char* argv[]) {
 
-    std::vector<std::string> hostname;
-
+    std::string loadfile;
     if(argc<2){
-        std::cout << "Usage : ./vis_example [hostname]" << std::endl;
+        std::cout << "Usage : ./record_example [loadfile.csv]" << std::endl;
         return -1;
     }
 
-    // get hostnames
-    for(int i=1; i<argc; i++){
-        hostname.push_back(argv[i]);
+    //get save filename
+    loadfile = argv[1];
+
+    std::vector<std::vector<std::string>> read_data;
+    std::ifstream file_(loadfile);
+
+    if(!file_.is_open()){
+        return -1;
     }
 
-    // lidar init
-    int lidar_index = 0;
-    LidarUtil _lidar;
-    for(auto &host: hostname){
-        _lidar.pushHost(host); // register lidar
-    }
+    std::cout << "Loading data ... " << loadfile << std::endl;
+    // csv file parse to _lidar
+    std::string line;
+    std::vector<std::vector<LidarData>> _lidar;
+    std::vector<LidarData> ldata;
+    LidarData _data;
+    int index = 0;
     
-    ouster::sensor::SensorScanSource source(_lidar.sensors); // lidar start : make thread in function
-    _lidar.getSensorInfo(source);
-    _lidar.printInfo(lidar_index); // print lidar info : not necessary
+    while(std::getline(file_, line)){
+        
+        std::stringstream ss(line);
+        std::string cell;
+        int offset = 0;
+        int lidar_index =0;
+        while(std::getline(ss, cell, ',')){
+            // std::cout << offset << ", " << cell << std::endl;
+            
+            if(offset == 0){
+                lidar_index = std::stoi(cell);
+                offset++;
+                // if(lidar_index != index){
+                //     index =  lidar_index;
+                // }
+            }else if(offset == 1){
+                _data.x = std::stof(cell);
+                offset++;
+            }else if(offset == 2){
+                _data.y = std::stof(cell);
+                offset++;
+            }else if(offset == 3){
+                _data.z = std::stof(cell);
+                offset++;
+            }else if(offset == 4){
+                _data.reflectivity =  std::stoi(cell);
+                ldata.push_back(_data);
+                offset = 0;
+            }
+        }
+        if(lidar_index != index){
+            index =  lidar_index;
+            _lidar.push_back(ldata);
+            ldata.clear();
+        }
+        
+    }
+
 
     /**** Initialize GLFW ****/ 
     if (!glfwInit()) {
@@ -96,7 +132,6 @@ int main(int argc, char* argv[]) {
     // Enable depth testing
     glEnable(GL_DEPTH_TEST);
 
-
     /**** Set callbacks ****/ 
     glfwSetKeyCallback(window, keyCallback);
     glfwSetMouseButtonCallback(window, mouseButtonCallback);
@@ -106,16 +141,10 @@ int main(int argc, char* argv[]) {
     /**** Set scene ****/
     Space space;
     Camera camera;
+    int prev_frame_index = 0;    
 
-#if PANORAMA_
-    PanoramaView PV(PANORAMA_WINDOW_HEIGHT, PANORAMA_WINDOW_WIDTH);
-    
-#if INFER    //inference
-    PTModel _model("../../best.torchscript.pt");
-#endif
 
-#endif
-
+    std::cout << _lidar.size() << std::endl;
     /**** Main loop ****/ 
     while (!glfwWindowShouldClose(window)) {
         
@@ -124,38 +153,21 @@ int main(int argc, char* argv[]) {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // draw scene
+        
         space.clearLines();
         space.clearBoxes();
         
         space.drawGrid(GRID_NUM, GRID_COEFFI, orbitRadius, GRID_Z_OFFSET);
 
-        // get lidar data & draw lidar data
-        if(_lidar.wholeScan(source)){
-            space.clearPoints();       
-            if (video_control == 0){
-                for(int i=0; i<_lidar.lidar_data.size(); i++){
-                    space.lidarIntoSpace(_lidar.lidar_data, i);
-                }
-            }
-#if PANORAMA_ && CV_VIEW
-            PV.makePanoramaView(_lidar.lidar_data[0], 0, ZOOM);
-
-#if INFER       //inference 
-            cv::Mat part_img = PV.cutImage(0, 0, 2048, 256);
-            _model.pushInput(_model.matToTensor(part_img));
-            _model.run();
-            _model.predProcess();
-            _model.drawPredBoxes(part_img);
-            cv::imshow("Panorama View", part_img);
-            _model.clearInputs();
-#else
-            cv::imshow("Panorama View", PV.color_image);
-#endif
-            cv::waitKey(1);
-
-#endif
+    
+        if(prev_frame_index != frame_index){
+            space.clearPoints();
+            std::cout << frame_index << "th frame\n";
+            prev_frame_index = frame_index;
+            if(frame_index > _lidar.size()-1) frame_index=_lidar.size()-1;
+            std::cout << "lidar data size : " << _lidar[frame_index].size() << std::endl;
+            space.lidarIntoSpace(_lidar, frame_index);
         }
-
 
         // Update camera position based on spherical coordinates
         float x = orbitRadius * glm::cos(verticalAngle) * glm::cos(horizontalAngle) + cameraPosition.x;
@@ -180,9 +192,10 @@ int main(int argc, char* argv[]) {
 
     glfwDestroyWindow(window);
     glfwTerminate();
+    file_.close();
     return 0;
-}
 
+}
 
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
     if (action == GLFW_PRESS || action == GLFW_REPEAT) {
@@ -204,6 +217,10 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
         } else if (key == GLFW_KEY_D) {                     //d
             cameraPosition += CAMERA_SPEED * cameraOrthoDirection; // 오른쪽 이동
             cameraTarget += CAMERA_SPEED * cameraOrthoDirection; // 오른쪽 이동
+        } else if (key == GLFW_KEY_Q) {                     //d
+            if(frame_index > 0) frame_index --;
+        } else if (key == GLFW_KEY_E) {                     //d
+            frame_index ++;
         } else if (key == GLFW_KEY_ESCAPE) {                //esc
             glfwSetWindowShouldClose(window, GLFW_TRUE);
         } else if (key == GLFW_KEY_P) {                     //p
