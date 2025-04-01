@@ -30,5 +30,5 @@
 
 // panorama window
 #define PANORAMA_WINDOW_WIDTH   2048
-#define PANORAMA_WINDOW_HEIGHT  512
-#define ZOOM                    2
+#define PANORAMA_WINDOW_HEIGHT  256
+#define ZOOM                    3

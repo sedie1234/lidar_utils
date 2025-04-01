@@ -13,10 +13,15 @@
 #include "lidar_util.h"
 #include "configs.h"
 #include "vis_util.h"
-// #include "time_util.h"
+
+#if INFER
+#include "infer_util.h"
+#endif
+
 #if CV_VIEW
 #include "opencv2/opencv.hpp"
 #endif
+
 bool leftMousePressed = false;
 double lastMouseX = 0.0, lastMouseY = 0.0;
 float horizontalAngle = glm::radians(INIT_CAM_HANGLE * 360.0f / 100.0f), verticalAngle = glm::radians(INIT_CAM_VANGLE * 360.0f / 100.0f); // 카메라의 회전 각도
@@ -104,6 +109,11 @@ int main(int argc, char* argv[]) {
 
 #if PANORAMA_
     PanoramaView PV(PANORAMA_WINDOW_HEIGHT, PANORAMA_WINDOW_WIDTH);
+    
+#if INFER    //inference
+    PTModel _model("../../best.torchscript.pt");
+#endif
+
 #endif
 
     /**** Main loop ****/ 
@@ -129,8 +139,20 @@ int main(int argc, char* argv[]) {
             }
 #if PANORAMA_ && CV_VIEW
             PV.makePanoramaView(_lidar.lidar_data[0], 0, ZOOM);
+
+#if INFER       //inference 
+            cv::Mat part_img = PV.cutImage(0, 0, 2048, 256);
+            _model.pushInput(_model.matToTensor(part_img));
+            _model.run();
+            _model.predProcess();
+            _model.drawPredBoxes(part_img);
+            cv::imshow("Panorama View", part_img);
+            _model.clearInputs();
+#else
             cv::imshow("Panorama View", PV.color_image);
+#endif
             cv::waitKey(1);
+
 #endif
         }
 

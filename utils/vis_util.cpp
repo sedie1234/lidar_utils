@@ -234,4 +234,19 @@ void PanoramaView::makePanoramaView(std::vector<LidarData> lidar_data, int color
     }
 }
 
+cv::Mat PanoramaView::cutImage(int x_start, int y_start, int x_end, int y_end){
+    int width = x_end - x_start;
+    int height = y_end - y_start;
+
+    if (x_start < 0 || y_start < 0 ||
+        x_end > color_image.cols || y_end > color_image.rows ||
+        width <= 0 || height <= 0) {
+        std::cerr << "Error: ROI is out of bounds or invalid!" << std::endl;
+        return cv::Mat();
+    }
+
+    cv::Rect roi(x_start, y_start, width, height);
+    return color_image(roi).clone();
+}
+
 #endif

@@ -86,6 +86,7 @@ public:
 
     void initImg(int h, int w);
     void makePanoramaView(std::vector<LidarData> lidar_data, int color, float zoom);
+    cv::Mat cutImage(int x_start, int y_start, int x_end, int y_end);
     cv::Mat color_image;
     int h;
     int w;

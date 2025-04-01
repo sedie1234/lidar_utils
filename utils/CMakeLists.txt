@@ -3,6 +3,7 @@
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
+
 # opencv library
 find_package(OpenCV 4.2 REQUIRED)
 include_directories(${OpenCV_INCLUDE_DIRS})
@@ -22,10 +23,20 @@ add_library(lidar_util STATIC
     cluster.cpp
 )
 
+
 target_link_libraries(lidar_util
     OusterSDK::ouster_client
     Eigen3::Eigen
     ${OpenCV_LIBS}
 )
 
-add_definitions(-UStatus -UMode)
+if(INFER)
+add_library(lidar_util STATIC
+	infer_util.cpp
+)
+target_link_libraries(lidar_util
+	"${TORCH_LIBRARIES}"
+)
+endif()
+
+

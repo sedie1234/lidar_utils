@@ -53,7 +53,7 @@ $ make
 - -DPANORAMA : 1이면 panorama view 생성, 0이면 생성 안함
 - -DBUILD_VIS : ON이면 visualizer example 생성, OFF면 생성 안함
 - -DCLUSTERING : 0이면 reflectivity, 1이면 clustering 알고리즘 1, 2면 clustering 알고리즘 2가 적용됨
-
+- -DINFER : 1이면 inference code 실행, 아니면 0
 ## execute
 ```
 $ cd build/example/
