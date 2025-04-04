@@ -47,11 +47,13 @@ public:
     // utils for box
     void addBox(const glm::vec3& point, const glm::vec3& xway, 
                 const glm::vec3& yway, const glm::vec3& zway, const glm::vec3& color);
+    void addBox(const glm::vec3& start_point, const glm::vec3& end_point, const glm::vec3& color);
     void clearBoxes();
 
     // void addObj(const glm::vec3& point, const glm::vec3& xway, 
     //             const glm::vec3& yway, const glm::vec3& zway);
     void drawGrid(int grid_num, int grid_coeffi, float orbitRadius, float grid_z_offset);
+    void pointColorChange(int index, glm::vec3 color);
 
     void lidarIntoSpace(std::vector<std::vector<LidarData>> lidar_data, int lidar_index);
 

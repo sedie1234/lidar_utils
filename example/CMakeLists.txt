@@ -90,3 +90,26 @@ target_link_libraries(lidar_load_example
 target_include_directories(lidar_load_example PUBLIC
     ${LIDAR_UTIL_DIR}
 )
+
+#multi sensor example
+set(MULTISENSE_SRC_FILES
+    multi_sense/multi_sense_example.cpp
+    multi_sense/camera.cpp
+    multi_sense/lens.cpp
+)
+add_executable(multi_sense_example ${MULTISENSE_SRC_FILES})
+target_link_libraries(multi_sense_example
+    OpenGL::GL
+    OpenGL::GLU
+    GLUT::GLUT
+    GLEW::GLEW
+    glfw
+    OusterSDK::ouster_client
+    lidar_util
+    Eigen3::Eigen
+    ${TORCH_LIBRARIES}
+)
+target_include_directories(multi_sense_example PUBLIC
+    ${LIDAR_UTIL_DIR}
+)
+

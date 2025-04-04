@@ -53,6 +53,12 @@ void Space::addBox(const glm::vec3& point, const glm::vec3& xway,
     boxes.push_back(_box);
 }
 
+void Space::addBox(const glm::vec3& start_point, const glm::vec3& end_point, const glm::vec3& color){
+    addBox(start_point, glm::vec3(end_point.x-start_point.x, 0.0f, 0.0f), 
+                        glm::vec3(0.0f, end_point.y-start_point.y, 0.0f),
+                        glm::vec3(0.0f, 0.0f, end_point.z-start_point.z), color);
+}
+
 void Space::clearBoxes(){
     boxes.clear();
     std::vector <Box>().swap(boxes);
@@ -92,6 +98,10 @@ void Space::drawGrid(int grid_num, int grid_coeffi, float orbitRadius, float gri
     }
 }
 
+void Space::pointColorChange(int index, glm::vec3 color){
+    points[index].color = color;
+}
+
 void Space::render() const{
     // Draw points
     for (const auto& point : points) {
@@ -120,7 +130,7 @@ void Space::render() const{
         float x = box.point.x;
         float y = box.point.y;
         float z = box.point.z;
-
+        
         glVertex3f(x, y, z);        glVertex3f(x + box.xway.x, y + box.xway.y, z + box.xway.z);
         glVertex3f(x, y, z);        glVertex3f(x + box.yway.x, y + box.yway.y, z + box.yway.z);
         glVertex3f(x, y, z);        glVertex3f(x + box.zway.x, y + box.zway.y, z + box.zway.z);

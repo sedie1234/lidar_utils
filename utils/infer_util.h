@@ -15,7 +15,7 @@ public:
         }
         img_h = 640;
         img_w = 640;
-        conf  = 0.25;
+        conf  = 0.35;
     };
 
     at::Tensor matToTensor(const cv::Mat& mat);

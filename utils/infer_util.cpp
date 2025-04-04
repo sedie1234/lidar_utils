@@ -50,10 +50,11 @@ void PTModel::resizeBox(cv::Rect& box, cv::Size from, cv::Size to){
 }
 
 void PTModel::predProcess(){
-    // std::cout << "result size : " << result->elements().size() << std::endl;
+    
     auto output = getOutput(0);
-    // std::cout << output <<std::endl;
     auto pred = output.accessor<float, 3>();
+
+    rects.clear();
 
     for(int i=0; i<pred.size(1); i++){
         float x_center = pred[0][i][0];
@@ -65,26 +66,30 @@ void PTModel::predProcess(){
         /***************************************
          *****   for multiple class case   *****
          ***************************************/
-        // float max_score = 0.0f;
-        // int class_id = -1;
-        // for(int j=5; j<6; j++){ // 6 = (# of class) + (xywh : 4) + (conf : 1)
-        //     float class_conf = pred[0][i][j];
-        //     if(class_conf > max_score){
-        //         max_score = class_conf;
-        //         class_id = j-5;
-        //     }
-        // }
-        // float total_conf = obj_conf * max_score;
-        // if(total_conf > this->conf){
-        //   /* process : detected class */
-        // }
-
-        if(obj_conf > this->conf){
+        float max_score = 0.0f;
+        int class_id = -1;
+        for(int j=5; j<6; j++){ // 6 = (# of class) + (xywh : 4) + (conf : 1)
+            float class_conf = pred[0][i][j];
+            if(class_conf > max_score){
+                max_score = class_conf;
+                class_id = j-5;
+            }
+        }
+        float total_conf = obj_conf * max_score;
+        if(total_conf > this->conf){
+          /* process : detected class */
             float x = x_center - width / 2.0f;
             float y = y_center - height / 2.0f;
             cv::Rect rect(x, y, width, height);
             rects.push_back(rect);
         }
+
+        // if(obj_conf > this->conf){
+        //     float x = x_center - width / 2.0f;
+        //     float y = y_center - height / 2.0f;
+        //     cv::Rect rect(x, y, width, height);
+        //     rects.push_back(rect);
+        // }
 
     }
     
@@ -92,7 +97,7 @@ void PTModel::predProcess(){
 
 void PTModel::drawPredBoxes(cv::Mat& img){
 
-    std::vector<cv::Scalar> colors = {(0, 255, 0)};
+    std::vector<cv::Scalar> colors = {(0, 255, 255)};
     int index = 0;
     for(auto rect : rects){
         // drawBox(img, rect, colors[index%colors.size()]);

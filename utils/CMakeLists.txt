@@ -17,26 +17,40 @@ find_package(Eigen3 REQUIRED)
 include_directories(${EIGEN3_INCLUDE_DIR})
 
 
-add_library(lidar_util STATIC
-    lidar_util.cpp
-    vis_util.cpp
-    cluster.cpp
-)
-
-
-target_link_libraries(lidar_util
-    OusterSDK::ouster_client
-    Eigen3::Eigen
-    ${OpenCV_LIBS}
-)
-
 if(INFER)
-add_library(lidar_util STATIC
-	infer_util.cpp
-)
-target_link_libraries(lidar_util
-	"${TORCH_LIBRARIES}"
-)
+    add_library(lidar_util STATIC
+        lidar_util.cpp
+        vis_util.cpp
+        cluster.cpp
+        uart_util.cpp
+        convert_coord.cpp
+        infer_util.cpp
+    )
+    target_link_libraries(lidar_util
+        OusterSDK::ouster_client
+        Eigen3::Eigen
+        ${OpenCV_LIBS}
+        "${TORCH_LIBRARIES}"
+    )
+else()
+    add_library(lidar_util STATIC
+        lidar_util.cpp
+        vis_util.cpp
+        cluster.cpp
+        uart_util.cpp
+        convert_coord.cpp
+    )
+    target_link_libraries(lidar_util
+        OusterSDK::ouster_client
+        Eigen3::Eigen
+        ${OpenCV_LIBS}
+    )
 endif()
+
+
+
+
+
+
 
 
