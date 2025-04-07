@@ -63,5 +63,6 @@ $ ./lidar_client_example [lidar addr]
 $ ./lidar_vis_example [lidar addr]
 $ ./lidar_record_example [csv filename] [lidar addr]
 $ ./lidar_load_example [csv filename]
+$ ./multi_sense_example [lidar to camera x] [lidar to camera y] [lidar to camera z] [lidar addr]
 ```
 

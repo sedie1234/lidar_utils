@@ -375,17 +375,28 @@ int main(int argc, char* argv[]) {
                             if(cluster_index > 3) break;
                         }
 
-                        space.addBox(glm::vec3(lens_lidar[cluster_list[0]].x, lens_lidar[cluster_list[0]].y, lens_lidar[cluster_list[0]].z),
-                                     glm::vec3(lens_lidar[cluster_list[cluster_list.size()-1]].x, 
-                                               lens_lidar[cluster_list[cluster_list.size()-1]].y,
-                                               lens_lidar[cluster_list[cluster_list.size()-1]].z), 
-                                     color_red);
-
-                        for(auto cidx : cluster_list){
+                        if(cluster_list.size()){
+                            glm::vec3 minp(9999.0, 9999.0, 9999.0), maxp(-9999.0, -9999.0, -9999.0);
                             
-                            space.addPoint(glm::vec3(lens_lidar[cidx].x, 
-                                                     lens_lidar[cidx].y,
-                                                     lens_lidar[cidx].z), color_red);
+                            for(auto cidx : cluster_list){
+
+                                space.addPoint(glm::vec3(lens_lidar[cidx].x, 
+                                                        lens_lidar[cidx].y,
+                                                        lens_lidar[cidx].z), color_red);
+                                if(minp.x > lens_lidar[cidx].x) minp.x = lens_lidar[cidx].x;
+                                if(minp.y > lens_lidar[cidx].y) minp.y = lens_lidar[cidx].y;
+                                if(minp.z > lens_lidar[cidx].z) minp.z = lens_lidar[cidx].z;
+                                if(maxp.x < lens_lidar[cidx].x) maxp.x = lens_lidar[cidx].x;
+                                if(maxp.y < lens_lidar[cidx].y) maxp.y = lens_lidar[cidx].y;
+                                if(maxp.z < lens_lidar[cidx].z) maxp.z = lens_lidar[cidx].z;
+                            }
+
+                            space.addBox(minp, maxp, color_red);
+                            // space.addBox(glm::vec3(lens_lidar[cluster_list[0]].x, lens_lidar[cluster_list[0]].y, lens_lidar[cluster_list[0]].z),
+                            //             glm::vec3(lens_lidar[cluster_list[cluster_list.size()-1]].x, 
+                            //                     lens_lidar[cluster_list[cluster_list.size()-1]].y,
+                            //                     lens_lidar[cluster_list[cluster_list.size()-1]].z), 
+                            //             color_red);
                         }
                         
                         
