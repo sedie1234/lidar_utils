@@ -15,9 +15,8 @@ include_directories(${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES})
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CUDA_STANDARD 11)
 
-message("here")
+
 if(INFER)
-message("here")
 set(Torch_DIR "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libtorch/share/cmake/Torch")
 add_definitions(-DINFER=1)
 find_package(Torch REQUIRED)
