@@ -14,6 +14,8 @@
 #include "vis_util.h"
 #include "convert_coord.h"
 
+#define CPU_CONVERSION  0
+#define GPU_CONVERSION  1
 
 class LensView{
 public:

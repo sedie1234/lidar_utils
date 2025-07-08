@@ -12,6 +12,7 @@
 #include "lens.h"
 #include "vis_util.h"
 #include "convert_coord.h"
+#include "matmul.cuh"
 
 std::vector<float> LensView::transposeMatrix(const std::vector<float>& matrix, int rows, int cols) {
     std::vector<float> transposed(cols * rows);
@@ -75,6 +76,8 @@ void LensView::convertBoxes(ConvertMatrix CM){
         }
     }
 
+#if CPU_CONVERSION
+
     auto B_T = transposeMatrix(B, 4, box_regions.size()*4);
     Eigen::Matrix<float, 4, 4, Eigen::RowMajor> matA(CM.convert_matrix.data());
     Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> matB = 
@@ -93,6 +96,68 @@ void LensView::convertBoxes(ConvertMatrix CM){
 
         box_converted_regions.push_back(regions);
     }
+
+#endif
+
+#if GPU_CONVERSION
+
+    std::vector<float> C(B.size());
+    // data num = box_regions.size() * 4 // 4 points per box (x, y, z, 1)
+
+    // A : conversion matrix
+    // C T
+    // 0 1
+
+    // B : box regions
+    // box0_way0 : x0 y0 z0 1.0
+    // box0_way1 : x1 y1 z1 1.0
+    // box0_way2 : x2 y2 z2 1.0
+    // box0_way3 : x3 y3 z3 1.0
+
+    // box1_way0 : x0 y0 z0 1.0
+    // box1_way1 : x1 y1 z1 1.0
+    // box1_way2 : x2 y2 z2 1.0
+    // box1_way3 : x3 y3 z3 1.0
+
+    // box2_way0 : x0 y0 z0 1.0
+    // box2_way1 : x1 y1 z1 1.0
+    // box2_way2 : x2 y2 z2 1.0
+    // box2_way3 : x3 y3 z3 1.0
+
+    // ...
+
+    // C : converted box regions
+    // box0_way0 : x0' y0' z0' 1.0
+    // box0_way1 : x1' y1' z1' 1.0
+    // box0_way2 : x2' y2' z2' 1.0
+    // box0_way3 : x3' y3' z3' 1.0
+
+    // box1_way0 : x0' y0' z0' 1.0
+    // box1_way1 : x1' y1' z1' 1.0
+    // box1_way2 : x2' y2' z2' 1.0
+    // box1_way3 : x3' y3' z3' 1.0
+
+    // box2_way0 : x0' y0' z0' 1.0
+    // box2_way1 : x1' y1' z1' 1.0
+    // box2_way2 : x2' y2' z2' 1.0
+    // box2_way3 : x3' y3' z3' 1.0
+
+
+    // data num is not element num, but coordinate num
+    matMul44Wrapper(CM.convert_matrix.data(), B.data(), C.data(), box_regions.size() * 4 /*data num*/); 
+
+    for (int i = 0; i < box_regions.size(); i++) {
+        std::vector<glm::vec3> regions;
+        regions.push_back(glm::vec3(C[4 * i], C[4 * i + 1], C[4 * i + 2]));
+        regions.push_back(glm::vec3(C[4 * i + 4], C[4 * i + 5], C[4 * i + 6]));
+        regions.push_back(glm::vec3(C[4 * i + 8], C[4 * i + 9], C[4 * i + 10]));
+        regions.push_back(glm::vec3(C[4 * i + 12], C[4 * i + 13], C[4 * i + 14]));
+
+        box_converted_regions.push_back(regions);
+    }
+
+#endif
+
 }
 
 void LensView::drawBoxes(Space& space, glm::vec3 V, glm::vec3 color){

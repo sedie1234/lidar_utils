@@ -96,6 +96,7 @@ set(MULTISENSE_SRC_FILES
     multi_sense/multi_sense_example.cpp
     multi_sense/camera.cpp
     multi_sense/lens.cpp
+	multi_sense/matmul.cu
 )
 add_executable(multi_sense_example ${MULTISENSE_SRC_FILES})
 target_link_libraries(multi_sense_example

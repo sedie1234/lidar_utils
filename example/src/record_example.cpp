@@ -54,7 +54,6 @@ int main(int argc, char* argv[]) {
     //savefile open
     std::ofstream csv_file(savefile);
 
-
     int frame_index = 0;
     while (true) {
         

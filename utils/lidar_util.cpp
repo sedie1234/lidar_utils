@@ -99,7 +99,7 @@ bool LidarUtil::wholeScan(ouster::sensor::SensorScanSource& source){
         data.x = xyz(0);
         data.y = xyz(1);
         data.z = xyz(2);
-    
+
         // if(reflect_flag)
             // data.reflectivity = reflectivity_destaggered(i/w[index], i%w[index]);
             data.reflectivity = reflectivity(i/w[index], i%w[index]);
